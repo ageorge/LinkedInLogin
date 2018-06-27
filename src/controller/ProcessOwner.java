@@ -77,13 +77,8 @@ public class ProcessOwner extends HttpServlet {
 		System.out.println("Email = " + email);
 		
 		PrintWriter out = response.getWriter();
-		out.println("<html>\n" + 
-				"<head>\n" + 
-				"<meta charset=\"UTF-8\"><link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\">\n" + 
-				"<script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js\"></script>\n" + 
-				"<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script></head>");
-		out.println("<body><div class='container'><div class='row'><a href='Login.html'>Logout</a><br><h4> Welcome "+owner.getOwnerName()+"!</h4><hr><br>");
-		out.print(owner + "</div></div></body></html>");
+		out.println("<a href='Login.html'>Logout</a><br><h4> Welcome "+owner.getOwnerName()+"!</h4><hr><br>");
+		out.print(owner);
 		
 	}
 

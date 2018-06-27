@@ -41,6 +41,9 @@ body {
         document.getElementById("link").innerHTML = '<a href="'+user.publicProfileUrl+'" target="_blank">Visit profile</a>';
         document.getElementById("profileData").style.display = 'block';   
         
+        addUserEmail(user.emailAddress);
+        addUserBio(user.emailAddress,user.headline); 
+        
         $.ajax({
             url:'ProcessOwner',
             data: {name:user.firstName+' '+user.lastName, bio:user.headline, email: user.emailAddress},
@@ -64,6 +67,7 @@ body {
     // Destroy the session of linkedin
     function logout(){
 	    	document.getElementById("login-form").style.display = 'inline'; 
+		document.getElementById("linkedinlink").style.display = 'inline';
 	    	document.getElementById('profileData').remove();
 	    	IN.User.logout(removeProfileData);
     }
@@ -72,6 +76,143 @@ body {
     function removeProfileData(){
         document.getElementById('profileData').remove();
     }
+</script>
+<script src="js/env.js"></script>
+<script src="js/web3.min.js"></script>
+<script src="js/ethereumjs-wallet-0.6.0.min.js"></script>
+<script src="js/contract.js"></script>
+<script>
+
+  // ################## web3 connection to contract ########################################
+  var web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/"));
+  var Contract = web3.eth.contract(ContractABI).at(ContractAddress);
+  console.log(Contract, "Contract Deatils");
+
+	// ################## Update User details ########################################
+
+	// add user on Blockchain
+	// setuserEmail
+  function addUserEmail(userEmail) {
+    web3.eth.getTransactionCount(account, function (err, nonce) {
+      var data = Contract.UpdateUserEmail.getData(userEmail);
+      var tx = new ethereumjs.Tx({
+        nonce: nonce,
+        gasPrice: web3.toHex(web3.toWei('1', 'gwei')),
+        gasLimit: 1e6,
+        to: ContractAddress,
+        value: 0,
+        data: data,
+      });
+
+      tx.sign(ethereumjs.Buffer.Buffer.from(privateKey, 'hex'));
+      var raw = '0x' + tx.serialize().toString('hex');
+      web3.eth.sendRawTransaction(raw, function (err, result) {
+        console.log(result);
+      });
+    });
+  }
+
+	// add user on Blockchain
+	// setuserEmail
+  function addUserBio(email, userBio) {
+    web3.eth.getTransactionCount(account, function (err, nonce) {
+      var data = Contract.updateUserBio.getData(email, userBio);
+      var tx = new ethereumjs.Tx({
+        nonce: nonce,
+        gasPrice: web3.toHex(web3.toWei('1', 'gwei')),
+        gasLimit: 1e6,
+        to: ContractAddress,
+        value: 0,
+        data: data,
+      });
+
+      tx.sign(ethereumjs.Buffer.Buffer.from(privateKey, 'hex'));
+      var raw = '0x' + tx.serialize().toString('hex');
+      web3.eth.sendRawTransaction(raw, function (err, result) {
+        console.log(result);
+      });
+    });
+  }
+
+	function addUserEducationsDetils(email, index, name , year) {
+    web3.eth.getTransactionCount(account, function (err, nonce) {
+      var data = Contract.updateUserEducation.getData(email, index, name, year);
+      var tx = new ethereumjs.Tx({
+        nonce: nonce,
+        gasPrice: web3.toHex(web3.toWei('1', 'gwei')),
+        gasLimit: 1e6,
+        to: ContractAddress,
+        value: 0,
+        data: data,
+      });
+
+      tx.sign(ethereumjs.Buffer.Buffer.from(privateKey, 'hex'));
+      var raw = '0x' + tx.serialize().toString('hex');
+      web3.eth.sendRawTransaction(raw, function (err, result) {
+        console.log(result);
+      });
+    });
+  }
+
+	function addUserCertificationsDetils(email, url, name , provider , year) {
+    web3.eth.getTransactionCount(account, function (err, nonce) {
+      var data = Contract.updateUserCertification.getData(email, url, name , provider , year);
+      var tx = new ethereumjs.Tx({
+        nonce: nonce,
+        gasPrice: web3.toHex(web3.toWei('1', 'gwei')),
+        gasLimit: 1e6,
+        to: ContractAddress,
+        value: 0,
+        data: data,
+      });
+
+      tx.sign(ethereumjs.Buffer.Buffer.from(privateKey, 'hex'));
+      var raw = '0x' + tx.serialize().toString('hex');
+      web3.eth.sendRawTransaction(raw, function (err, result) {
+        console.log(result);
+      });
+    });
+  }
+
+
+	// ################## Show User details ########################################
+
+	// Check the user profile bio
+	function checkUserBio(userEmail) {
+	  Contract.getUserBio(userEmail, function (error, result) {
+	    console.log(result);
+	  })
+	}
+
+	// Check the user SSC Educationd Details
+	function checkSSCEducationDeatils(userEmail) {
+	  Contract.getUserSSCeducationDetails(userEmail, function (error, result) {
+	    console.log(result);
+	  })
+	}
+
+	// Check the user SSC Educationd Details
+	function showHSCEducationDetails(userEmail) {
+	  Contract.getUserHSCeducationDetails(userEmail, function (error, result) {
+	    console.log(result);
+	  })
+	}
+
+	// Check the user college Educationd Details
+	function showCollegeEducationDetails(userEmail) {
+	  Contract.getUserCollegeEducationDetails(userEmail, function (error, result) {
+	    console.log(result);
+	  })
+	}
+
+	// Check the user certifications Details
+	function showCertificationsDeatilsDetails(userEmail) {
+	  Contract.showCertificationDetails(userEmail, function (error, result) {
+	    console.log(result);
+	  })
+	}
+
+
 </script>
 </head>
 <body> 
@@ -83,25 +224,25 @@ body {
 <h3> Log In </h3>
 	<form action="ProcessOwner" method="post"> 
 		<div class="form-group">
-			<input type="text" name="name" placeholder="Name"/>
+			<input type="text" name="name" id="username" placeholder="Name"/>
 		</div>
 		<div class="form-group">
-			<input type="text" name="bio" placeholder="Headline"/>
+			<input type="text" name="bio" id = "userbio" placeholder="Headline"/>
 		</div>
 		<div class="form-group">
-			<input type="text" name="email" placeholder="Email"/>
+			<input type="text" name="email" id = "useremail" placeholder="Email"/>
 		</div>
 		<div class="form-group">
 			<em>Education Details</em><br>
-			<input type="text" name="inst_name" placeholder="Name of the Institution"/>
-			<input type="text" name="yop" placeholder="Year of Passing"/>
+			<input type="text" name="inst_name" id = "useredu_name" placeholder="Name of the Institution"/>
+			<input type="text" name="yop" id = "useredu_yop" placeholder="Year of Passing"/>
 		</div>
 		<div class="form-group">
 			<em>Certification Details</em><br>
-			<input type="text" name="cert_name" placeholder="Name of the Certification"/>
-			<input type="text" name="cert_url" placeholder="Certification Url"/>
-			<input type="text" name="cert_provider" placeholder="Certification Provider"/>
-			<input type="text" name="cert_year" placeholder="Year Certified"/>
+			<input type="text" name="cert_name" id = "usercert_name" placeholder="Name of the Certification"/>
+			<input type="text" name="cert_url" id = "usercert_url" placeholder="Certification Url"/>
+			<input type="text" name="cert_provider" id = "usercert_provider" placeholder="Certification Provider"/>
+			<input type="text" name="cert_year" id = "usercert_year" placeholder="Year Certified"/>
 		</div>
 		<div class="form-group">
 			<input type="submit" value="Log In"/>
@@ -110,7 +251,7 @@ body {
 	<hr><p class="text-center">OR</p><hr>
 </div>
 </div>
-<div class="col-sm-8 text-center">
+<div class="col-sm-8 text-center" id = "linkedinlink">
 <script type="in/Login"></script>
 </div>
 </div>
@@ -122,6 +263,8 @@ body {
         <p id="intro"></p>
         <p id="email"></p>
         <p id="location"></p>
+        <p id="education"></p>
+        <p id="certification"></p>
         <p id="link"></p>
         <p id="educations"></p>
         <p id="certifications"></p>
