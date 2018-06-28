@@ -41,8 +41,6 @@ body {
         document.getElementById("link").innerHTML = '<a href="'+user.publicProfileUrl+'" target="_blank">Visit profile</a>';
         document.getElementById("profileData").style.display = 'block';   
         
-        addUserEmail(user.emailAddress);
-        addUserBio(user.emailAddress,user.headline); 
         
         $.ajax({
             url:'ProcessOwner',
@@ -57,6 +55,9 @@ body {
             }
          }
     );
+        
+        addUserEmail(user.emailAddress);
+        addUserBio(user.emailAddress,user.headline); 
     }
 
     // Handle an error response from the API call
